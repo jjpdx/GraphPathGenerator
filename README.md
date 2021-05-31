@@ -1,12 +1,22 @@
 # GraphPathGenerator
 Blazor-based student project for generating graphs and calculating the shortest path between two given vertices.
 
+For an example of using the tool see the video below:
+https://user-images.githubusercontent.com/7828219/120140978-765a1a80-c190-11eb-92d1-306986a3b9c3.mp4
+
 ## Table of contents
+  * [Instructions](#instructions)
   * [Features](#features)
   * [Initial Plans](#initial-plans)
   * [Outcomes](#outcomes)
   * [Possible Improvements](#improvements)
   * [Known Bugs](#bugs)
+  
+## Instructions
+Steps to build and run locally:
+ * Download latest release and unzip source file
+ * From command prompt, cd to project folder and type dotnet run
+ * It will give you a localhost address (i.e. http://localhost:5000) to put into your browser
   
 ## Features
  * Mouse and keyboard controls to use with a canvas to create and rename vertices as well as connect them with edges.
@@ -14,19 +24,13 @@ Blazor-based student project for generating graphs and calculating the shortest 
  * Console with basic error reporting.
   
 ## Initial Plans
-Originally, the goal was to make a way of determining the path for an user-defined graph fitting a few different criteria such as: 
+ Originally, the goal was to make a way of determining the path for an user-defined graph fitting a few different criteria such as: 
  * Shortest path
  * Longest path (with no looping)
  * Random inputs (instead outputting average distance)
 
 ## Outcomes
-After around 12 hours of work, I succeeded in my minimum viable product design. 
-It has a fairly intuitive UI for creating a graph and the way that the vertices and edges are handled as components works well.
-I'm happy with the scalability of the process. It could easily be expanded to fulfill other goals for types of paths to generate.
-A few inefficiencies:
- * There is likely a better way to implement parameter inheritance with components, essentially I have two working lists of vertices (and edges), one in the DOM and one used for data manipulation by the main page.
- * I used a couple while loops in my PathfinderService code, it seems unavoidable but there is likely a better way. Theoretically for each loop there is no infinite possible.
- * My PathfinderService code reused the same data passed through different functions, I'm unsure whether it would be better to have those sets of data as variables within the service instance itself.
+I built the UI as Blazor components using HTML5, CSS, and dynamically created JS from C# using JSInterop. The functionality of determining the shortest path was accomplished in the PathfinderService which uses a variation of a breadth-first search to create a working dictionary of each vertex associated with it's direct ancestor (in terms of distance to the starting vertex) and its own distance. Unfortunately, I didn't have time to create a way for the tool to handle other types of pathfinding. This project taught me a lot about how to deal with using graphs in computation.
  
 ## Potential Improvements
  * Ability to toggle between alternate and equal paths (currently only prints out the first path that has the minimum length).
@@ -35,6 +39,8 @@ A few inefficiencies:
  * Way to import existing graph.
  * Zooming for use on very large imported graphs.
  * Better controls for more quickly creating graphs.
+ * Reexamine parameter inheritance for Blazor components, avoid having two working lists of each component.
+ * Reexamine PathfinderService's handling of reused data.
  
 ## Bugs
 Known bugs:
