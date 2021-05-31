@@ -1,0 +1,46 @@
+﻿<textarea class="vertexLabel" draggable="true"  style="top:@(Top)px;left:@(Left)px" @onkeydown="KeyEventHandler" @ondragend="DragEventHandler" @onchange="TextChangeHandler">@Label</textarea>
+
+@code {
+    public double PositionX { get; set; }
+    public double PositionY { get; set; }
+    public bool IsDeleted { get; set; }
+
+    [Parameter]
+    public string Label { get; set; }
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    [Parameter]
+    public int Top { get; set; }
+
+    [Parameter]
+    public int Left { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid> DeleteEvent { get; set; }
+
+    [Parameter]
+    public EventCallback<Tuple<Guid, int, int>> MoveEvent { get; set; }//This Id, X coord, Y coord
+
+    [Parameter]
+    public EventCallback<Tuple<Guid, string>> RenameEvent { get; set; }
+
+    private void KeyEventHandler(KeyboardEventArgs e)
+    {
+        if (e.Key.ToLower() == "delete")
+        {
+            DeleteEvent.InvokeAsync(Id);
+        }
+    }
+
+    private void DragEventHandler(DragEventArgs e)
+    {
+        MoveEvent.InvokeAsync(Tuple.Create(Id, (int)e.ClientX, (int)e.ClientY));
+    }
+
+    private void TextChangeHandler(ChangeEventArgs e)
+    {
+        RenameEvent.InvokeAsync(Tuple.Create(Id, e.Value.ToString()));
+    }
+}

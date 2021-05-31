@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31321.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphPathGenerator", "GraphPathGenerator.csproj", "{B4D3AEAD-215B-4D20-93FC-25E70505E6B8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B4D3AEAD-215B-4D20-93FC-25E70505E6B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4D3AEAD-215B-4D20-93FC-25E70505E6B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4D3AEAD-215B-4D20-93FC-25E70505E6B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4D3AEAD-215B-4D20-93FC-25E70505E6B8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C1D833B9-BAB9-4DF0-AA83-6AD199C67765}
+	EndGlobalSection
+EndGlobal

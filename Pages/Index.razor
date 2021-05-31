@@ -1,0 +1,153 @@
+﻿@page "/"
+
+@using Blazor.Extensions;
+@using GraphPathGenerator.Components
+
+
+<div class="graphArea" @ondblclick="@divDoubleClick">
+    @foreach (var vertex in Vertices)
+    {
+        <Vertex Id="vertex.Id" Top="(int)vertex.PositionY" Left="(int)vertex.PositionX" DeleteEvent="@DeleteEvent" MoveEvent="@MoveEvent" RenameEvent="@RenameEvent" Label="@vertex.Label"/>
+    }
+    <svg width="100%" height="100%" class="edgeArea">
+        @foreach (var edge in Edges)
+        {
+            <Edge Vertex1="edge.Vertex1" Vertex2="edge.Vertex2" />
+        }
+    </svg>
+</div>
+
+<div class="graphArea" style="display:flex; height: 500px">
+    <div style="width:50%;margin-right:20px;">
+        <div class="instructionsPanel">
+            How to use create graphs:<br />
+            Double click to create vertex.<br />
+            Drag a vertex to move it. <br />
+            Drag a vertex onto another vertex to add or remove an edge. <br />
+            <div style="padding-left:5px; padding-top: 5px; border:1px solid gray">
+                <label style="margin-right:5px;">Automatically number new vertices</label><input type="checkbox" id="autoName" name="autoName" value="autoName" @bind="autoName" />
+            </div>
+        </div>
+        <div class="instructionsPanel">
+            How to find the shortest path: <br />
+            <label style="margin-right:5px;">Start Vertex</label><input @bind="startVertexLabel" style="width:50px;" />
+            <label style="margin-right:5px;">End Vertex</label><input @bind="endVertexLabel" style="width:50px;" />
+            <button @onclick="CalculatePath">Find Paths</button>
+        </div>
+    </div>
+    <div style="flex-grow: 1; background: black; margin:20px;">
+        <textarea style="background:black; color:green;width:100%;height:100%" disabled>
+            @foreach (string message in ConsoleOutput)
+            {
+                @message
+            }
+        </textarea>
+    </div>
+</div>
+
+@code {
+    protected List<Vertex> Vertices = new List<Vertex>();
+    protected List<Edge> Edges = new List<Edge>();
+    protected Queue<string> ConsoleOutput = new Queue<string>();
+
+    protected bool autoName = false;
+    protected int currentIndex = 1;
+    protected string startVertexLabel;
+    protected string endVertexLabel;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+    }
+
+    protected void divDoubleClick(MouseEventArgs e)
+    {
+        var closestVertexInRange = Vertices.FirstOrDefault(v => Math.Sqrt((Math.Pow(v.PositionX - (e.OffsetX + 10), 2) + Math.Pow(v.PositionY - (e.OffsetY - 5), 2))) < 100);
+        if (closestVertexInRange == null)
+        {
+            var vert = new Vertex()
+            {
+                PositionX = e.OffsetX + 10, //pointless style tweaks I can't help doing.
+                PositionY = e.OffsetY - 5,
+                Id = Guid.NewGuid()
+            };
+            if (autoName)
+            {
+                vert.Label = currentIndex.ToString();
+                currentIndex += 1;
+            }
+            Vertices.Add(vert);
+
+            AddToConsoleOutput("Created new vertex labeled " + vert.Label + " at coordinates:" + vert.PositionX + "," + vert.PositionY);
+        }
+    }
+
+    private void DeleteEvent(Guid Id)
+    {
+        List<Edge> edgesToRemove = Edges.Where(e => e.Vertex1.Id == Id || e.Vertex2.Id == Id).ToList();
+        foreach (Edge edge in edgesToRemove)
+        {
+            Edges.Remove(edge);
+        }
+        Vertices.Remove(Vertices.FirstOrDefault(v => v.Id == Id));
+    }
+
+    private void MoveEvent(Tuple<Guid, int, int> data)
+    {
+        bool tooCloseToNeighbor = CheckAndCreateEdge(data);
+
+        if (!tooCloseToNeighbor)
+        {
+            var vertex = Vertices.FirstOrDefault(v => v.Id == data.Item1);
+            vertex.PositionX = data.Item2 - 25;
+            vertex.PositionY = data.Item3 - 25;
+        }
+    }
+
+    private void RenameEvent(Tuple<Guid, string> data)
+    {
+        var vertex = Vertices.FirstOrDefault(v => v.Id == data.Item1);
+        vertex.Label = data.Item2;
+    }
+
+    private bool CheckAndCreateEdge(Tuple<Guid, int, int> data)
+    {
+        bool isTooClose = false;
+        var vertex = Vertices.FirstOrDefault(v => v.Id == data.Item1);
+        var x = data.Item2;
+        var y = data.Item3;
+        var closestVertexInRange = Vertices.FirstOrDefault(v => v.Id != vertex.Id && Math.Sqrt((Math.Pow(v.PositionX - x, 2) + Math.Pow(v.PositionY - y, 2))) < 100);
+        if (closestVertexInRange != null)
+        {
+            var existingEdge = Edges.FirstOrDefault(e => (e.Vertex1 == vertex || e.Vertex2 == vertex) && (e.Vertex1 == closestVertexInRange || e.Vertex2 == closestVertexInRange));
+            if (existingEdge == null)
+            {
+                var edge = new Edge()
+                {
+                    Vertex1 = vertex,
+                    Vertex2 = closestVertexInRange
+                };
+                Edges.Add(edge);
+            }
+            else
+            {
+                Edges.Remove(existingEdge);
+            }
+            isTooClose = true;
+        }
+        return isTooClose;
+    }
+
+    private void AddToConsoleOutput(string message)
+    {
+        if (ConsoleOutput.Count >= 10)
+        {
+            var front = ConsoleOutput.Dequeue(); 
+        }
+        ConsoleOutput.Enqueue(message+" \n\r");
+    }
+
+    private void CalculatePath ()
+    {
+        AddToConsoleOutput("Finding Paths...");
+    }
+}

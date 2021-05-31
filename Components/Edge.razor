@@ -1,0 +1,27 @@
+﻿<line x1="@(Vertex1.PositionX-7)" y1="@(Vertex1.PositionY+5)" x2="@(Vertex2.PositionX-7)" y2="@(Vertex2.PositionY+5)" stroke="red"/>
+
+@code {
+    [Parameter]
+    public Vertex Vertex1 { get; set; }
+
+    [Parameter]
+    public Vertex Vertex2 { get; set; }
+
+    public bool ContainsVertex (Guid vertexId)
+    {
+        if (Vertex1.Id == vertexId || Vertex2.Id == vertexId)
+            return true;
+        else
+            return false;
+    }
+
+    public Guid GetMatchingVertexPartner(Guid vertexId)
+    {
+        if (Vertex1.Id == vertexId)
+            return Vertex2.Id;
+        else if (Vertex2.Id == vertexId)
+            return Vertex1.Id;
+        else
+            return Guid.Empty;
+    }
+}

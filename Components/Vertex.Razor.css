@@ -1,0 +1,18 @@
+﻿.vertexLabel {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: transparent;
+    resize: none;
+    overflow: hidden;
+    text-align: center;
+    line-height: 45px;
+    outline: none;
+    cursor: pointer;
+    background:white;
+}
+
+.vertexLabel:focus {
+    border-color: blue;
+}
