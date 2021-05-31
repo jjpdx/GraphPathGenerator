@@ -1,4 +1,4 @@
-﻿<line x1="@(Vertex1.PositionX-7)" y1="@(Vertex1.PositionY+5)" x2="@(Vertex2.PositionX-7)" y2="@(Vertex2.PositionY+5)" stroke="red"/>
+﻿<line x1="@(Vertex1.PositionX-7)" y1="@(Vertex1.PositionY+5)" x2="@(Vertex2.PositionX-7)" y2="@(Vertex2.PositionY+5)" stroke="@(IsInPath ? "blue" : "black")"/>
 
 @code {
     [Parameter]
@@ -7,9 +7,20 @@
     [Parameter]
     public Vertex Vertex2 { get; set; }
 
+    [Parameter]
+    public bool IsInPath { get; set; }
+
     public bool ContainsVertex (Guid vertexId)
     {
         if (Vertex1.Id == vertexId || Vertex2.Id == vertexId)
+            return true;
+        else
+            return false;
+    }
+
+    public bool ContainsBothVertices(Guid vertexId1, Guid vertexId2)
+    {
+        if ((Vertex1.Id == vertexId1 || Vertex2.Id == vertexId1) && (Vertex1.Id == vertexId2 || Vertex2.Id == vertexId2))
             return true;
         else
             return false;

@@ -2,6 +2,7 @@
 
 @using Blazor.Extensions;
 @using GraphPathGenerator.Components
+@using GraphPathGenerator.Core.Services
 
 
 <div class="graphArea" @ondblclick="@divDoubleClick">
@@ -12,7 +13,7 @@
     <svg width="100%" height="100%" class="edgeArea">
         @foreach (var edge in Edges)
         {
-            <Edge Vertex1="edge.Vertex1" Vertex2="edge.Vertex2" />
+            <Edge Vertex1="edge.Vertex1" Vertex2="edge.Vertex2" IsInPath="edge.IsInPath" />
         }
     </svg>
 </div>
@@ -77,7 +78,7 @@
             }
             Vertices.Add(vert);
 
-            AddToConsoleOutput("Created new vertex labeled " + vert.Label + " at coordinates:" + vert.PositionX + "," + vert.PositionY);
+            AddToConsoleOutput("Created new vertex at coordinates:" + vert.PositionX + "," + vert.PositionY);
         }
     }
 
@@ -141,13 +142,63 @@
     {
         if (ConsoleOutput.Count >= 10)
         {
-            var front = ConsoleOutput.Dequeue(); 
+            var front = ConsoleOutput.Dequeue();
         }
         ConsoleOutput.Enqueue(message+" \n\r");
     }
 
     private void CalculatePath ()
     {
-        AddToConsoleOutput("Finding Paths...");
+        if (Vertices.Select(v => v.Label).Count() > Vertices.Select(v => v.Label).Distinct().Count())
+        {
+            AddToConsoleOutput("Error: duplicate vertex labels detected. Please make sure all vertices have unique labels.");
+            return;
+        }
+
+        AddToConsoleOutput("Finding Path...");
+        var pathfinder = new PathfinderService();
+        var startVertex = Vertices.FirstOrDefault(v => v.Label == startVertexLabel);
+        if (startVertex == null)
+        {
+            AddToConsoleOutput("Error: vertex matching start vertex text not found.");
+            return;
+        }
+
+        var endVertex = Vertices.FirstOrDefault(v => v.Label == endVertexLabel);
+        if (endVertex == null)
+        {
+            AddToConsoleOutput("Error: vertex matching end vertex text not found.");
+            return;
+        }
+
+        var path = pathfinder.GetShortestPath(startVertex.Id, endVertex.Id, Vertices, Edges);
+        var pathTextOutput = "";
+        var isFirst = true;
+        var lastGuid = Guid.Empty;
+        foreach (Guid g in path)
+        {
+            var matchingVertex = Vertices.FirstOrDefault(v => v.Id == g);
+            if (matchingVertex == null)
+            {
+                AddToConsoleOutput("Error: Vertex found in path not found in set of graph vertices.");
+                return;
+            }
+
+            if (!isFirst) //adds arrow if it isn't the first node, just style
+            {
+                pathTextOutput += "\u2794";
+            }
+            pathTextOutput += matchingVertex.Label;
+            isFirst = false;
+
+            if (lastGuid != Guid.Empty) //this is all to find the edges that are a part of the path to highlight them, i could just do this with what is returned from the service
+            {
+                var matchingEdge = Edges.FirstOrDefault(e => e.ContainsBothVertices(g, lastGuid));
+                if (matchingEdge != null)
+                    matchingEdge.IsInPath = true;
+            }
+            lastGuid = g;
+        }
+        AddToConsoleOutput("Shortest Path Found: " + pathTextOutput);
     }
 }
